@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#171d1b"><title>Codex Remote · 远程工作台</title><link rel="stylesheet" href="/style.css"></head>
+<body>
+  <section id="pairing" class="pairing">
+    <form id="login-form" class="pair-card">
+      <div class="brand-mark">⌘</div><p class="eyebrow">YOUR WORK, WITHIN REACH</p>
+      <h1>连接你的 Codex。</h1><p class="muted">离开电脑，也能让工作继续。查看进度、补充想法，在需要时做出决定。</p>
+      <label for="token">设备配对码</label><input id="token" type="password" autocomplete="current-password" required placeholder="输入服务端保存的配对码">
+      <p class="hint">在运行服务的电脑上查看 .remote-token 文件。</p><p id="login-error" class="error" role="alert"></p><button class="primary" type="submit">连接工作台 <span aria-hidden="true">↗</span></button>
+      <div class="pair-footer">CODEX REMOTE <span>PRIVATE WORKSPACE</span></div>
+    </form>
+  </section>
+  <div id="workspace" class="workspace" hidden>
+    <aside id="sidebar" class="sidebar">
+      <a class="brand" href="/" aria-label="Codex Remote 首页"><span class="small-mark">⌘</span><span>codex<span class="brand-sub"> / remote</span></span></a>
+      <div class="sidebar-heading"><span>工作空间</span><span class="pill">LOCAL</span></div>
+      <button id="new-task" class="new-task">＋ <span>新建任务</span><kbd>N</kbd></button>
+      <div class="section-label">最近任务 <button id="refresh" class="icon-button" aria-label="刷新任务列表">↻</button></div>
+      <nav id="tasks" aria-label="任务列表"></nav><button id="more-tasks" class="subtle" hidden>加载更多任务</button>
+      <div class="sidebar-bottom"><span id="connection" class="connection">连接中</span><button id="logout" class="subtle">退出配对</button><p>你的代码，留在你的电脑。</p></div>
+    </aside>
+    <button id="scrim" class="scrim" aria-label="关闭任务列表" hidden></button>
+    <main>
+      <header class="topbar"><button id="menu" class="icon-button mobile-only" aria-label="打开任务列表">☰</button><div class="breadcrumb">工作空间 <span>/</span> <strong id="breadcrumb">概览</strong></div><span id="mode" class="mode">本地运行</span></header>
+      <div id="demo-banner" class="demo-banner" hidden>演示模式 · 不会调用模型或修改文件</div>
+      <div id="backend-error" class="backend-error" role="alert" hidden></div>
+      <section id="welcome" class="welcome">
+        <p class="eyebrow">A LITTLE DISTANCE. SAME MOMENTUM.</p><h1>工作继续，<br><span>你不必守在电脑前。</span></h1>
+        <p class="welcome-copy">把任务交给 Codex。随时回来看看进展，<br class="desktop-only">补充一个想法，或批准下一步操作。</p>
+        <button id="welcome-new" class="primary">开始一个任务 <span aria-hidden="true">↗</span></button>
+        <div class="feature-grid"><article><span class="feature-number">01 / LIVE</span><h2>随时看进展</h2><p>回复、命令和执行结果，实时同步。</p></article><article><span class="feature-number">02 / CONNECT</span><h2>把想法接上</h2><p>任务进行中，也可以补充新的要求。</p></article><article><span class="feature-number">03 / CONTROL</span><h2>由你来决定</h2><p>清楚看到请求，逐条批准或拒绝。</p></article></div>
+        <p class="welcome-note">选择左侧历史任务，或新建一个任务开始。已有独立终端的运行中任务无法在这里接管。</p>
+      </section>
+      <section id="task-view" class="task-view" hidden>
+        <div class="task-header"><div><p class="eyebrow">TASK WORKSPACE</p><h1 id="task-title">新任务</h1><p id="task-path" class="task-path"></p></div><span id="task-status" class="status">等待输入</span></div>
+        <div class="tabs" role="tablist" aria-label="任务内容"><button id="tab-chat" role="tab" aria-selected="true" aria-controls="chat-panel" class="active">对话与进展</button><button id="tab-diff" role="tab" aria-selected="false" aria-controls="diff-panel">代码改动 <span id="diff-count">0</span></button></div>
+        <section id="readonly-banner" class="readonly-banner" aria-label="会话访问方式" hidden><div><strong id="readonly-title">只读查看历史</strong><p id="readonly-description">不会占用原会话。历史每 8 秒刷新，可能落后于原客户端的实时输出。</p><p id="access-error" class="error" role="alert"></p></div><div class="access-actions"><button id="resume-task" type="button">接管并继续</button><button id="fork-task" type="button">复制为新会话</button></div></section>
+        <div id="chat-panel" role="tabpanel" aria-labelledby="tab-chat"><div id="plan" class="plan" hidden></div><div id="timeline" class="timeline" aria-live="polite" aria-relevant="additions"></div><div id="approvals" class="approvals"></div><div id="task-error" class="error" role="alert"></div><button id="jump" class="jump" hidden>↓ 查看最新进展</button></div>
+        <div id="diff-panel" role="tabpanel" aria-labelledby="tab-diff" hidden><pre id="diff" class="diff">暂无代码改动。</pre></div>
+        <div class="composer-wrap"><form id="message-form" class="composer"><label for="message" class="sr-only">发送给 Codex 的消息</label><textarea id="message" rows="2" maxlength="20000" placeholder="描述任务，或补充一个想法…" required></textarea><div class="composer-actions"><span id="composer-hint">Enter 发送 · Shift + Enter 换行</span><div><button id="interrupt" type="button" class="stop" hidden>■ 停止</button><button id="send" class="send" type="submit">发送 <span aria-hidden="true">↑</span></button></div></div></form><p class="composer-footer">CODEX REMOTE <span>连接关闭后，任务仍在服务端继续运行。</span></p></div>
+      </section>
+    </main>
+  </div>
+  <dialog id="new-dialog"><form id="create-form"><div class="dialog-top"><p class="eyebrow">NEW TASK</p><button id="close-dialog" type="button" class="icon-button" aria-label="关闭">×</button></div><h2>从哪里开始？</h2><p class="muted">选择这台电脑上的项目文件夹。</p><label for="cwd">项目路径</label><input id="cwd" required autocomplete="off"><p class="hint">任务使用隔离工作区权限；需要审批的操作会显示在对话中。</p><p id="create-error" class="error" role="alert"></p><button class="primary" type="submit">创建任务 <span aria-hidden="true">↗</span></button></form></dialog>
+  <div id="toast" class="toast" role="status" hidden></div><script src="/app.js" type="module"></script>
+</body></html>
