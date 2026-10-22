@@ -118,6 +118,27 @@ tailscale serve --bg http://127.0.0.1:8787
 
 ## 离线与后台
 
+### Windows 服务（无终端窗口、开机自启）
+
+在项目目录中打开**管理员 PowerShell**，确认网页终端中的任务可以中断，再运行：
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\windows-service.ps1 -Action Install -ReplaceRunning
+```
+
+安装 `CodexRemote`（显示名 `Codex Remote`）服务，同时管理 8789 终端服务和 8790 历史页面入口。保留原配对码和访问端口，安装时会结束这两个端口上的旧 Node 进程及其终端任务。省略 `-ReplaceRunning` 时，若端口被占用则拒绝切换。服务支持延迟自动启动及崩溃恢复，关闭 PowerShell 不影响运行；电脑仍需保持开机、不休眠。
+
+服务使用 **LocalSystem** 账户，具有系统权限；安装时保存当前用户的 PATH、用户目录和 Codex 配置路径，沿用该用户的登录与历史。网页终端也继承服务账户权限。无需下载额外服务工具，包装程序由 Windows 自带 .NET Framework 编译器本地构建。
+
+在 `services.msc` 中搜索 `Codex Remote` 可启动、停止或重启服务。日志位于 `.windows-service\logs\日期.log`，安装记录位于 `.windows-service\install.log`，本机配置位于 `.windows-service\config.xml`（均不提交 Git）。Node 或 Codex 安装路径改变时需更新本机配置或删除配置后重新安装。重启服务会中断其中的终端任务，保存的会话可从历史恢复。
+
+```powershell
+# 查看状态（无需管理员权限）
+.\scripts\windows-service.ps1 -Action Status
+# 卸载（管理员 PowerShell；会停止服务及其终端任务，保留历史和配对码）
+.\scripts\windows-service.ps1 -Action Uninstall
+```
+
 - 关闭手机页面或网络断开，不会停止服务端任务；再次连接会同步状态和待审批请求。
 - **服务进程必须持续运行，电脑不能睡眠。** 停止 Node 服务也会关闭它启动的 Codex 后端；重启后可恢复保存的历史，但不会自动继续中断的任务或保留旧审批。
 - 网页配对 24 小时有效，服务重启后需要重新配对。配对码保存在本机，不会传给模型。
